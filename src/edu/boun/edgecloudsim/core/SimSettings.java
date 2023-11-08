@@ -30,7 +30,7 @@ import org.w3c.dom.NodeList;
 import edu.boun.edgecloudsim.utils.SimLogger;
 
 public class SimSettings {
-	private static SimSettings instance = null;
+	protected static SimSettings instance = null;
 	private Document edgeDevicesDoc = null;
 
 	public static final double CLIENT_ACTIVITY_START_TIME = 10;
@@ -113,11 +113,11 @@ public class SimSettings {
 	// [10] vm utilization on cloud (%)
 	// [11] vm utilization on mobile (%)
 	// [12] delay sensitivity [0-1]
-	private double[][] taskLookUpTable = null;
+	protected double[][] taskLookUpTable = null;
 
-	private String[] taskNames = null;
+	protected String[] taskNames = null;
 
-	private SimSettings() {
+	protected SimSettings() {
 		NUM_OF_PLACE_TYPES = 0;
 	}
 
@@ -134,6 +134,13 @@ public class SimSettings {
 	 * @return
 	 */
 	public boolean initialize(String propertiesFile, String edgeDevicesFile, String applicationsFile){
+		boolean result = tryParseProperties(propertiesFile);
+		parseApplicationsXML(applicationsFile);
+		parseEdgeDevicesXML(edgeDevicesFile);
+		return result;
+	}
+
+	protected boolean tryParseProperties(String propertiesFile) {
 		boolean result = false;
 		InputStream input = null;
 		try {
@@ -147,7 +154,7 @@ public class SimSettings {
 			WARM_UP_PERIOD = (double)60 * Double.parseDouble(prop.getProperty("warm_up_period")); //seconds
 			INTERVAL_TO_GET_VM_LOAD_LOG = (double)60 * Double.parseDouble(prop.getProperty("vm_load_check_interval")); //seconds
 			INTERVAL_TO_GET_LOCATION_LOG = (double)60 * Double.parseDouble(prop.getProperty("location_check_interval")); //seconds
-			INTERVAL_TO_GET_AP_DELAY_LOG = (double)60 * Double.parseDouble(prop.getProperty("ap_delay_check_interval", "0")); //seconds		
+			INTERVAL_TO_GET_AP_DELAY_LOG = (double)60 * Double.parseDouble(prop.getProperty("ap_delay_check_interval", "0")); //seconds
 			FILE_LOG_ENABLED = Boolean.parseBoolean(prop.getProperty("file_log_enabled"));
 			DEEP_FILE_LOG_ENABLED = Boolean.parseBoolean(prop.getProperty("deep_file_log_enabled"));
 
@@ -210,9 +217,6 @@ public class SimSettings {
 				}
 			}
 		}
-		parseApplicationsXML(applicationsFile);
-		parseEdgeDevicesXML(edgeDevicesFile);
-
 		return result;
 	}
 
@@ -575,14 +579,14 @@ public class SimSettings {
 		return taskNames[taskType];
 	}
 
-	private void isAttributePresent(Element element, String key) {
+	protected void isAttributePresent(Element element, String key) {
 		String value = element.getAttribute(key);
 		if (value.isEmpty() || value == null){
 			throw new IllegalArgumentException("Attribute '" + key + "' is not found in '" + element.getNodeName() +"'");
 		}
 	}
 
-	private void isElementPresent(Element element, String key) {
+	protected void isElementPresent(Element element, String key) {
 		try {
 			String value = element.getElementsByTagName(key).item(0).getTextContent();
 			if (value.isEmpty() || value == null){
@@ -593,7 +597,7 @@ public class SimSettings {
 		}
 	}
 
-	private Boolean checkElement(Element element, String key) {
+	protected Boolean checkElement(Element element, String key) {
 		Boolean result = true;
 		try {
 			String value = element.getElementsByTagName(key).item(0).getTextContent();
@@ -607,7 +611,7 @@ public class SimSettings {
 		return result;
 	}
 
-	private void parseApplicationsXML(String filePath)
+	protected void parseApplicationsXML(String filePath)
 	{
 		Document doc = null;
 		try {	
@@ -669,7 +673,7 @@ public class SimSettings {
 		}
 	}
 
-	private void parseEdgeDevicesXML(String filePath)
+	protected void parseEdgeDevicesXML(String filePath)
 	{
 		try {	
 			File devicesFile = new File(filePath);
