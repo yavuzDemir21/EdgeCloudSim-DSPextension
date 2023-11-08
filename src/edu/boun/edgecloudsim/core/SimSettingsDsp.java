@@ -26,6 +26,7 @@ public class SimSettingsDsp extends SimSettings{
     }
 
     public boolean initialize(String propertiesFile, String edgeDevicesFile, String applicationsFile, String topologyFile){
+
         boolean result = tryParseProperties(propertiesFile);
         parseApplicationsXML(applicationsFile);
         parseEdgeDevicesXML(edgeDevicesFile);
